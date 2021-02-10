@@ -11,6 +11,10 @@ app: clean build
 	mkdir -p ./Daylight.app/Contents/Resources
 	cp ./assets/icon.icns ./Daylight.app/Contents/Resources
 
+zip: app
+	zip -r Daylight.zip ./Daylight.app
+
 clean:
 	rm -f daylight
 	rm -rf Daylight.app
+	rm -f Daylight.zip
