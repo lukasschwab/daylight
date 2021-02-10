@@ -1,5 +1,6 @@
 # Built assets
 *.app
+*.zip
 daylight
 
 # Misc.
