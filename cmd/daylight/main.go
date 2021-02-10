@@ -29,7 +29,7 @@ func main() {
 		eventTempFiles := &daylight.TempFiles{FileNameFormat: "daylight.*.ics"}
 		defer eventTempFiles.CleanUp()
 
-		// nextClicked := make(chan bool)
+		refreshClicked := make(chan bool)
 		go func() {
 			// TODO: error handling.
 			var fetchedData *daylight.SunData
@@ -58,21 +58,31 @@ func main() {
 			for {
 				select {
 				case <-time.After(1 * time.Minute):
-					render()
-				case <-time.After(15 * time.Minute):
-					// Clean up created event files.
-					eventTempFiles.CleanUp()
 					// Refetch data if necessary. TODO: error handling.
 					if fetchedData.NeedsRefresh() {
 						fetchedData, _ = daylight.GetCurrentData()
 					}
+					render()
+				case <-time.After(15 * time.Minute):
+					// Clean up created event files.
+					eventTempFiles.CleanUp()
+				case <-refreshClicked:
+					fetchedData, _ = daylight.GetCurrentData()
+					render()
 				}
 			}
 		}()
 
 		itemQuit := cocoa.NSMenuItem_New()
-		itemQuit.SetTitle("Quit")
+		itemQuit.SetTitle("Quit Daylight")
 		itemQuit.SetAction(objc.Sel("terminate:"))
+
+		itemRefresh := cocoa.NSMenuItem_New()
+		itemRefresh.SetTitle("Refresh data")
+		itemRefresh.SetAction(objc.Sel("refresh:"))
+		cocoa.DefaultDelegateClass.AddMethod("refresh:", func(_ objc.Object) {
+			refreshClicked <- true
+		})
 
 		calendarEventsItem := cocoa.NSMenuItem_New()
 		calendarEventsItem.SetTitle("New calendar event...")
@@ -86,6 +96,7 @@ func main() {
 		menu.AddItem(itemVerbose)
 		menu.AddItem(cocoa.NSMenuItem_Separator())
 		menu.AddItem(calendarEventsItem)
+		menu.AddItem(itemRefresh)
 		menu.AddItem(itemQuit)
 		obj.SetMenu(menu)
 
