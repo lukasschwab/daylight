@@ -45,8 +45,9 @@ func main() {
 					itemVerbose.SetTitle("You snooze, you lose.")
 				} else {
 					toSunset := fetchedData.Sunset.Sub(now).Round(time.Minute)
-					obj.Button().SetTitle(fmt.Sprintf("◼ %v", toSunset.String()))
-					itemVerbose.SetTitle(fmt.Sprintf("%v until sunset", toSunset.String()))
+					toSunsetString := toString(toSunset)
+					obj.Button().SetTitle(fmt.Sprintf("◼ %v", toSunsetString))
+					itemVerbose.SetTitle(fmt.Sprintf("%v until sunset", toSunsetString))
 				}
 			}
 
@@ -136,4 +137,10 @@ func makeCalendarEventItem(minutes int64, tmpfiles *daylight.TempFiles) cocoa.NS
 		}
 	})
 	return item
+}
+
+func toString(d time.Duration) string {
+	hours := d / time.Hour
+	minutes := (d - (hours * time.Hour)) / time.Minute
+	return fmt.Sprintf("%dh%dm", hours, minutes)
 }
