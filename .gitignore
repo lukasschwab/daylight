@@ -1,2 +1,7 @@
+# Built assets
+*.app
+daylight
+
+# Misc.
 .DS_Store
 python-sketch

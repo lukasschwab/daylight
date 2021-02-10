@@ -1,0 +1,1 @@
+Assets for bundling a MacOS application. These might be placeholders for now.
