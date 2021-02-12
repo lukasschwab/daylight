@@ -1,7 +1,5 @@
 package main
 
-// TODO: refactor logic into a daylight package in the root, and refactor the application into ./cmd
-
 import (
 	"fmt"
 	"log"
@@ -40,69 +38,81 @@ func main() {
 		eventTempFiles := &daylight.TempFiles{FileNameFormat: "daylight.*.ics"}
 		defer eventTempFiles.CleanUp()
 
+		// Make channels for handling user clicks.
 		refreshClicked := make(chan bool)   // channels manual refresh triggers.
 		newEventClicked := make(chan int64) // channels requests for calendar events.
 
-		go func() {
-			var fetchedData *daylight.SunData
-			render := func() {
-				now := time.Now()
-				if fetchedData == nil {
-					// Unrenderable state.
-					log.Println("Tried rendering nil data")
-				} else if now.Before(fetchedData.Sunrise) {
-					// Indicate waiting for sunrise.
-					obj.Button().SetTitle(titleDark)
-					toSunrise := fetchedData.Sunrise.Sub(now).Round(time.Minute)
-					itemVerbose.SetTitle(fmt.Sprintf("%v until sunrise", toSunrise.String()))
-				} else if now.After(fetchedData.Sunset) {
-					// Indicate no data for tomorrow.
-					obj.Button().SetTitle(titleDark)
-					itemVerbose.SetTitle("You snooze, you lose.")
-				} else {
-					// Indicate time to sunset.
-					toSunset := fetchedData.Sunset.Sub(now).Round(time.Minute)
-					toSunsetString := toString(toSunset)
-					obj.Button().SetTitle(fmt.Sprintf(titleDaylightFormat, toSunsetString))
-					itemVerbose.SetTitle(fmt.Sprintf("%v until sunset", toSunsetString))
-				}
+		render := func(data *daylight.SunData) {
+			now := time.Now()
+			if data == nil {
+				// Unrenderable state; don't change current
+				log.Println("Tried rendering nil data")
+			} else if now.Before(data.Sunrise) {
+				// Indicate waiting for sunrise.
+				obj.Button().SetTitle(titleDark)
+				toSunrise := data.Sunrise.Sub(now).Round(time.Minute)
+				itemVerbose.SetTitle(fmt.Sprintf("%v until sunrise", toSunrise.String()))
+			} else if now.After(data.Sunset) {
+				// Indicate no data for tomorrow.
+				obj.Button().SetTitle(titleDark)
+				itemVerbose.SetTitle("You snooze, you lose.")
+			} else {
+				// Indicate time to sunset.
+				toSunset := data.Sunset.Sub(now).Round(time.Minute)
+				toSunsetString := toString(toSunset)
+				obj.Button().SetTitle(fmt.Sprintf(titleDaylightFormat, toSunsetString))
+				itemVerbose.SetTitle(fmt.Sprintf("%v until sunset", toSunsetString))
 			}
+		}
 
+		go func() {
+			// fetchedData is cached sunrise/sunset data; it's expected to last
+			// for a day before it's automatically refetched.
+			var fetchedData *daylight.SunData
+
+			// fetchAndRender fetches new data, caches it, and renders it.
 			fetchAndRender := func() {
+				obj.Button().SetTitle(titleLoading)
 				refetchedData, err := daylight.GetCurrentData()
 				if err == nil {
 					fetchedData = refetchedData
-					render()
+					render(fetchedData)
 				} else {
 					log.Printf("Encountered error re-fetching data: %v\n", err)
 				}
 			}
 
-			// Initial state.
+			// Initialize state.
 			fetchAndRender()
 			// Event loop.
 			for {
 				select {
 				case <-time.After(1 * time.Minute):
-					// Refetch data if necessary. TODO: error handling.
+					// Refetch data if fetchedData is more than a day old.
+					// Otherwise, rerender fetchedData to update the displayed
+					// duration.
 					if fetchedData.NeedsRefresh() {
 						fetchAndRender()
+					} else {
+						render(fetchedData)
 					}
 				case <-time.After(15 * time.Minute):
-					// Clean up created event files.
+					// Periodically lean up created event files.
 					eventTempFiles.CleanUp()
 				case <-refreshClicked:
 					fetchAndRender()
 				case minutes := <-newEventClicked:
-					createCalendarEvent(eventTempFiles, fetchedData.Sunset, minutes)
+					openICSEvent(eventTempFiles, fetchedData.Sunset, minutes)
 				}
 			}
 		}()
 
+		// Construct menu item to quit app.
 		itemQuit := cocoa.NSMenuItem_New()
 		itemQuit.SetTitle("Quit Daylight")
 		itemQuit.SetAction(objc.Sel("terminate:"))
 
+		// Construct menu item to manually refresh data.
 		itemRefresh := cocoa.NSMenuItem_New()
 		itemRefresh.SetTitle("Refresh data")
 		itemRefresh.SetAction(objc.Sel("refresh:"))
@@ -110,6 +120,7 @@ func main() {
 			refreshClicked <- true
 		})
 
+		// Construct menu items to create calendar events.
 		calendarEventsItem := cocoa.NSMenuItem_New()
 		calendarEventsItem.SetTitle("New calendar event...")
 		calendarEventsMenu := cocoa.NSMenu_New()
@@ -118,6 +129,7 @@ func main() {
 		}
 		calendarEventsItem.SetSubmenu(calendarEventsMenu)
 
+		// Assemble menu items into menu, then attach menu to status bar obj.
 		menu := cocoa.NSMenu_New()
 		menu.AddItem(itemVerbose)
 		menu.AddItem(itemRefresh)
@@ -130,6 +142,8 @@ func main() {
 	app.Run()
 }
 
+// makeCalendarEventItem constructs an NSMenuItem which, when clicked, signals
+// the event loop via ch to open an ICS event of the specified duration.
 func makeCalendarEventItem(minutes int64, ch chan int64) cocoa.NSMenuItem {
 	selector := fmt.Sprintf("calendar%d:", minutes)
 	item := cocoa.NSMenuItem_New()
@@ -149,7 +163,9 @@ func toString(d time.Duration) string {
 	return fmt.Sprintf("%dh%dm", hours, minutes)
 }
 
-func createCalendarEvent(tmpfiles *daylight.TempFiles, sunset time.Time, minutes int64) {
+// openICSEvent writes an ICS calendar event of the specified duration (ending
+// at sunset) to a temporary file, then opens that file with the default app.
+func openICSEvent(tmpfiles *daylight.TempFiles, sunset time.Time, minutes int64) {
 	log.Printf("Creating a %d-minute calendar event\n", minutes)
 	// Fill out an ICS event.
 	startAt := sunset.Add(time.Duration(minutes) * -time.Minute)

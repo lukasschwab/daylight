@@ -9,12 +9,14 @@
 
 ## To do
 
-- [ ] Reasonable error handling.
+- [x] Reasonable error handling.
+- [ ] Encapsulate state management.
 - [ ] Get a proper app icon.
 - [ ] Don't hardcode San Francisco.
 - [ ] Interactions.
-    - [ ] Figure out a notification flow.
-    - [ ] Find a nice default representation for the status bar.
+    - [x] Find a nice default representation for the status bar.
+    - [ ] ~Figure out a notification flow.~
+    - [ ] Surfacing errors to the user––not just in the logs.
 - [ ] Build.
     - [ ] Move build artifacts into a `build` directory for cleanliness.
     - [ ] `make` targets shouldn't all be phony.
