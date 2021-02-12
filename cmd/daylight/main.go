@@ -95,12 +95,12 @@ func main() {
 
 		menu := cocoa.NSMenu_New()
 		menu.AddItem(itemVerbose)
+		menu.AddItem(itemRefresh)
 		menu.AddItem(cocoa.NSMenuItem_Separator())
 		menu.AddItem(calendarEventsItem)
-		menu.AddItem(itemRefresh)
+		menu.AddItem(cocoa.NSMenuItem_Separator())
 		menu.AddItem(itemQuit)
 		obj.SetMenu(menu)
-
 	})
 	app.Run()
 }
@@ -116,22 +116,25 @@ func makeCalendarEventItem(minutes int64, tmpfiles *daylight.TempFiles) cocoa.NS
 		// TODO: we can send a message via a channel to the main loop to do this from there and use their state...
 		data, _ := daylight.GetCurrentData()
 		startAt := data.Sunset.Add(time.Duration(minutes) * -time.Minute)
-		calendar := ical.Calendar{Items: []ical.CalendarEvent{
-			ical.CalendarEvent{
-				Id:       uuid.New().String(),
-				Summary:  fmt.Sprintf("☀️ %d minutes to sunset", minutes),
-				Location: "San Francisco", // FIXME
-				StartAt:  &startAt,
-				EndAt:    &data.Sunset,
-			},
-		}}
+		calendar := ical.Calendar{Items: []ical.CalendarEvent{{
+			Id:       uuid.New().String(),
+			Summary:  fmt.Sprintf("☀️ %d minutes to sunset", minutes),
+			Location: "San Francisco", // FIXME
+			StartAt:  &startAt,
+			EndAt:    &data.Sunset,
+		}}}
 
-		// TODO: handle errors
-		icsEventFile, _ := tmpfiles.New()
+		// Write temporary file.
+		icsEventFile, err := tmpfiles.New()
+		if err != nil {
+			log.Printf("Encountered error creating temporary ICS file: %v", err)
+			return
+		}
 		icsEventFile.Write([]byte(calendar.ToICS()))
 		icsEventFile.Close()
 
-		cmd := exec.Command("open", "-a", "Calendar", icsEventFile.Name())
+		// Open temporary file.
+		cmd := exec.Command("open", icsEventFile.Name())
 		if err := cmd.Run(); err != nil {
 			log.Printf("Encountered error opening ICS file %v: %v", icsEventFile.Name(), err)
 		}
