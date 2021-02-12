@@ -1,7 +1,5 @@
 # Built assets
-*.app
-*.zip
-daylight
+build
 
 # Misc.
 .DS_Store

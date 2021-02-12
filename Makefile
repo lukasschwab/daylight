@@ -1,20 +1,32 @@
-build:
-	go build ./cmd/daylight
+BUILDDIR = build
 
+.PHONY: build
+build: $(BUILDDIR)/daylight
+
+$(BUILDDIR)/daylight: *.go cmd/daylight/*.go
+	go build -o $(BUILDDIR)/daylight ./cmd/daylight
+
+.PHONY: run
 run:
 	go run ./cmd/daylight/main.go
 
-app: clean build
-	mkdir -p ./Daylight.app/Contents/MacOS
-	cp ./assets/Info.plist ./Daylight.app/Contents
-	cp ./daylight ./Daylight.app/Contents/MacOS
-	mkdir -p ./Daylight.app/Contents/Resources
-	cp ./assets/icon.icns ./Daylight.app/Contents/Resources
+.PHONY: app
+app: $(BUILDDIR)/Daylight.app
 
-zip: app
-	zip -r Daylight.zip ./Daylight.app
+$(BUILDDIR)/Daylight.app: $(BUILDDIR)/daylight assets/*
+	# Copy assets and build binaries into app directory structure.
+	mkdir -p $(BUILDDIR)/Daylight.app/Contents/MacOS
+	cp ./assets/Info.plist $(BUILDDIR)/Daylight.app/Contents
+	cp $(BUILDDIR)/daylight $(BUILDDIR)/Daylight.app/Contents/MacOS
+	mkdir -p $(BUILDDIR)/Daylight.app/Contents/Resources
+	cp ./assets/icon.icns $(BUILDDIR)/Daylight.app/Contents/Resources
 
+.PHONY: zip
+zip: $(BUILDDIR)/Daylight.zip
+
+$(BUILDDIR)/Daylight.zip: $(BUILDDIR)/Daylight.app
+	zip -r $(BUILDDIR)/Daylight.zip $(BUILDDIR)/Daylight.app
+
+.PHONY: clean
 clean:
-	rm -f daylight
-	rm -rf Daylight.app
-	rm -f Daylight.zip
+	rm -rf $(BUILDDIR)

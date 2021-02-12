@@ -17,6 +17,6 @@
     - [x] Find a nice default representation for the status bar.
     - [ ] ~Figure out a notification flow.~
     - [ ] Surfacing errors to the user––not just in the logs.
-- [ ] Build.
-    - [ ] Move build artifacts into a `build` directory for cleanliness.
-    - [ ] `make` targets shouldn't all be phony.
+- [x] Build.
+    - [x] Move build artifacts into a `build` directory for cleanliness.
+    - [x] `make` targets shouldn't all be phony.
