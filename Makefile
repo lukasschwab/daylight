@@ -25,7 +25,7 @@ $(BUILDDIR)/Daylight.app: $(BUILDDIR)/daylight assets/*
 zip: $(BUILDDIR)/Daylight.zip
 
 $(BUILDDIR)/Daylight.zip: $(BUILDDIR)/Daylight.app
-	zip -r $(BUILDDIR)/Daylight.zip $(BUILDDIR)/Daylight.app
+	cd $(BUILDDIR) && zip -r Daylight.zip Daylight.app
 
 .PHONY: clean
 clean:
