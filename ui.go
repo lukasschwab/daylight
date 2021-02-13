@@ -1,18 +1,18 @@
-package main
+package daylight
 
 import (
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/lukasschwab/daylight"
 	"github.com/progrium/macdriver/cocoa"
 	"github.com/progrium/macdriver/objc"
 )
 
 const (
-	// titleLoading is used between launch and rendering of the first fetch.
-	titleLoading = "◌"
+	// TitleLoading is used between launch and rendering of the first fetch.
+	// It's the one title that may be set outside of Render().
+	TitleLoading = "◌"
 	// titleDark indicates the present time is before sunrise or after sunset.
 	titleDark = "◻"
 	// titleDaylightFormat indicates the present time is between sunrise and
@@ -38,7 +38,7 @@ func InitUI(refreshClicked chan bool, newEventClicked chan int64) (components *u
 	// + root status bar icon
 	statusItem := cocoa.NSStatusBar_System().StatusItemWithLength(cocoa.NSVariableStatusItemLength)
 	statusItem.Retain()
-	statusItem.Button().SetTitle(titleLoading)
+	statusItem.Button().SetTitle(TitleLoading)
 	// + unclickable item expressing the duration
 	verboseItem := cocoa.NSMenuItem_New()
 	components = &ui{statusItem, verboseItem}
@@ -94,27 +94,33 @@ func makeCalendarEventItem(minutes int64, ch chan int64) cocoa.NSMenuItem {
 }
 
 // Render updates components to reflect data.
-func (components *ui) Render(data *daylight.SunData) {
+func (components *ui) Render(data *SunData) {
 	now := time.Now()
 	if data == nil {
 		// Unrenderable state; don't change current
 		log.Println("Tried rendering nil data")
 	} else if now.Before(data.Sunrise) {
 		// Indicate waiting for sunrise.
-		components.statusItem.Button().SetTitle(titleDark)
+		components.SetStatusItemTitle(titleDark)
 		toSunrise := data.Sunrise.Sub(now).Round(time.Minute)
 		components.verboseItem.SetTitle(fmt.Sprintf("%v until sunrise", toSunrise.String()))
 	} else if now.After(data.Sunset) {
 		// Indicate no data for tomorrow.
-		components.statusItem.Button().SetTitle(titleDark)
+		components.SetStatusItemTitle(titleDark)
 		components.verboseItem.SetTitle("You snooze, you lose.")
 	} else {
 		// Indicate time to sunset.
 		toSunset := data.Sunset.Sub(now).Round(time.Minute)
 		toSunsetString := toString(toSunset)
-		components.statusItem.Button().SetTitle(fmt.Sprintf(titleDaylightFormat, toSunsetString))
+		components.SetStatusItemTitle(fmt.Sprintf(titleDaylightFormat, toSunsetString))
 		components.verboseItem.SetTitle(fmt.Sprintf("%v until sunset", toSunsetString))
 	}
+}
+
+// SetStatusItemTitle sets the title for the status bar item. This setter is
+// exported as an exception:
+func (components *ui) SetStatusItemTitle(title string) {
+	components.statusItem.Button().SetTitle(title)
 }
 
 // toString formats a duration until sunset for display in the status bar and

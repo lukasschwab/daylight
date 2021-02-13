@@ -26,7 +26,7 @@ func main() {
 		refreshClicked := make(chan bool)   // channels manual refresh triggers.
 		newEventClicked := make(chan int64) // channels requests for calendar events.
 		// Initialize UI.
-		ui := InitUI(refreshClicked, newEventClicked)
+		ui := daylight.InitUI(refreshClicked, newEventClicked)
 
 		go func() {
 			// fetchedData is cached sunrise/sunset data; it's expected to last
@@ -34,7 +34,7 @@ func main() {
 			var fetchedData *daylight.SunData
 			fetchAndRender := func(forceRefetch bool) {
 				if forceRefetch {
-					ui.statusItem.Button().SetTitle(titleLoading)
+					ui.SetStatusItemTitle(daylight.TitleLoading)
 				}
 				var err error
 				if fetchedData, err = fetchedData.Update(forceRefetch); err != nil {
