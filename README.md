@@ -1,6 +1,6 @@
-# daylight
+# daylight [![Go Reference](https://pkg.go.dev/badge/github.com/lukasschwab/daylight.svg)](https://pkg.go.dev/github.com/lukasschwab/daylight)
 
-`daylight` is a little app for telling you how much daylight remains.
+`daylight` is a little macOS status bar app for telling you how much daylight remains.
 
 + Check a status bar countdown of how much daylight is left.
 + Create a calendar event for the last `n` minutes of daylight.
