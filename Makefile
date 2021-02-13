@@ -29,6 +29,10 @@ $(BUILDDIR)/Daylight.app: build assets/*
 	mkdir -p $(BUILDDIR)/Daylight.app/Contents/Resources
 	cp ./assets/icon.icns $(BUILDDIR)/Daylight.app/Contents/Resources
 
+.PHONY: install
+install: app
+	cp -r $(BUILDDIR)/Daylight.app /Applications
+
 # Zip a production MacOS app.
 .PHONY: zip
 zip: $(BUILDDIR)/Daylight.zip
