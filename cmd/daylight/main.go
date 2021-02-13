@@ -71,11 +71,10 @@ func openICSEvent(tmpfiles *daylight.TempFiles, sunset time.Time, minutes int64)
 	// Fill out an ICS event.
 	startAt := sunset.Add(time.Duration(minutes) * -time.Minute)
 	calendar := ical.Calendar{Items: []ical.CalendarEvent{{
-		Id:       uuid.New().String(),
-		Summary:  fmt.Sprintf("☀️ %d minutes to sunset", minutes),
-		Location: "San Francisco", // FIXME
-		StartAt:  &startAt,
-		EndAt:    &sunset,
+		Id:      uuid.New().String(),
+		Summary: fmt.Sprintf("☀️ %d minutes to sunset", minutes),
+		StartAt: &startAt,
+		EndAt:   &sunset,
 	}}}
 
 	// Write temporary file.

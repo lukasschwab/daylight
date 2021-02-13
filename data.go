@@ -68,11 +68,6 @@ type rawSunData struct {
 
 // convert parses rawSunData times into SunData times.
 func (rd *rawSunData) convert() (*SunData, error) {
-	// FIXME: don't hardcode tz. Also, handle error.
-	location, err := time.LoadLocation("America/Los_Angeles")
-	if err != nil {
-		return nil, err
-	}
 	now := time.Now()
 	year, month, day := now.Date()
 
@@ -81,7 +76,7 @@ func (rd *rawSunData) convert() (*SunData, error) {
 		if err != nil {
 			return parsed, fmt.Errorf("Error parsing raw time: %w", err)
 		}
-		return time.Date(year, month, day, parsed.Hour(), parsed.Minute(), parsed.Second(), 0, location), nil
+		return time.Date(year, month, day, parsed.Hour(), parsed.Minute(), parsed.Second(), 0, now.Location()), nil
 	}
 
 	sunrise, err := parse(rd.Sunrise)

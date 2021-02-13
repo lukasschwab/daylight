@@ -29,6 +29,7 @@ $(BUILDDIR)/Daylight.app: build assets/*
 	mkdir -p $(BUILDDIR)/Daylight.app/Contents/Resources
 	cp ./assets/icon.icns $(BUILDDIR)/Daylight.app/Contents/Resources
 
+# Throw the built app in your /Applications directory.
 .PHONY: install
 install: app
 	cp -r $(BUILDDIR)/Daylight.app /Applications
