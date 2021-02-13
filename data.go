@@ -25,8 +25,29 @@ type SunData struct {
 	Sunset    time.Time
 }
 
-// GetCurrentData fetches sunrise and sunset data from wttr.in.
-func GetCurrentData() (*SunData, error) {
+// Update returns new data if force or if d needs to be refreshed (i.e. is from
+// a day before the current day). If fetching current data fails, Update
+// returns d unaltered.
+func (d *SunData) Update(force bool) (data *SunData, err error) {
+	if force || d == nil || d.needsRefresh() {
+		log.Printf("Updating data [forced: %v]", force)
+		newData, err := getCurrentData()
+		if err != nil {
+			return d, fmt.Errorf("Error updating data: %w", err)
+		}
+		return newData, nil
+	}
+	log.Printf("Skipping refresh; data from %v", d.fetchTime)
+	return d, nil
+}
+
+// needsRefresh returns true if d was fetched on a day before today.
+func (d *SunData) needsRefresh() bool {
+	return time.Now().Day() != d.fetchTime.Day()
+}
+
+// getCurrentData fetches and converts sunrise and sunset data from wttr.in.
+func getCurrentData() (*SunData, error) {
 	log.Printf("Fetching %v", wttrURL)
 	resp, err := http.Get(wttrURL)
 	if err != nil {
@@ -37,11 +58,6 @@ func GetCurrentData() (*SunData, error) {
 		return nil, fmt.Errorf("Error decoding JSON response: %w", err)
 	}
 	return rawData.convert()
-}
-
-// NeedsRefresh returns true if d was fetched on a day before today.
-func (d *SunData) NeedsRefresh() bool {
-	return time.Now().Day() != d.fetchTime.Day()
 }
 
 // rawSunData corresponds to the raw data returned by wttr.in. See wttrURL.

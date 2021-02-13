@@ -26,9 +26,11 @@ const (
 )
 
 func main() {
+	log.Println("Starting Daytime")
 	runtime.LockOSThread()
 
 	app := cocoa.NSApp_WithDidLaunch(func(n objc.Object) {
+		// Init status bar icon.
 		obj := cocoa.NSStatusBar_System().StatusItemWithLength(cocoa.NSVariableStatusItemLength)
 		obj.Retain()
 		obj.Button().SetTitle(titleLoading)
@@ -69,38 +71,30 @@ func main() {
 			// fetchedData is cached sunrise/sunset data; it's expected to last
 			// for a day before it's automatically refetched.
 			var fetchedData *daylight.SunData
-
-			// fetchAndRender fetches new data, caches it, and renders it.
-			fetchAndRender := func() {
-				obj.Button().SetTitle(titleLoading)
-				refetchedData, err := daylight.GetCurrentData()
-				if err == nil {
-					fetchedData = refetchedData
-					render(fetchedData)
-				} else {
-					log.Printf("Encountered error re-fetching data: %v\n", err)
+			fetchAndRender := func(forceRefetch bool) {
+				if forceRefetch {
+					obj.Button().SetTitle(titleLoading)
 				}
+				var err error
+				if fetchedData, err = fetchedData.Update(forceRefetch); err != nil {
+					log.Printf("Error updating data: %v", err)
+				}
+				render(fetchedData)
 			}
 
 			// Initialize state.
-			fetchAndRender()
+			fetchAndRender(true)
+
 			// Event loop.
 			for {
 				select {
 				case <-time.After(1 * time.Minute):
-					// Refetch data if fetchedData is more than a day old.
-					// Otherwise, rerender fetchedData to update the displayed
-					// duration.
-					if fetchedData.NeedsRefresh() {
-						fetchAndRender()
-					} else {
-						render(fetchedData)
-					}
+					fetchAndRender(false)
 				case <-time.After(15 * time.Minute):
 					// Periodically lean up created event files.
 					eventTempFiles.CleanUp()
 				case <-refreshClicked:
-					fetchAndRender()
+					fetchAndRender(true)
 				case minutes := <-newEventClicked:
 					openICSEvent(eventTempFiles, fetchedData.Sunset, minutes)
 				}
