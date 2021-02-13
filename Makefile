@@ -1,19 +1,27 @@
 BUILDDIR = build
 
+# Build a production binary.
 .PHONY: build
 build: $(BUILDDIR)/daylight
 
 $(BUILDDIR)/daylight: *.go cmd/daylight/*.go
 	go build -o $(BUILDDIR)/daylight ./cmd/daylight
 
-.PHONY: run
-run:
-	go run ./cmd/daylight/main.go
+# Build a dev binary.
+.PHONY: dev
+dev:
+	go build -tags dev -o $(BUILDDIR)/daylight ./cmd/daylight
 
+# Run a dev binary.
+.PHONY: run
+run: dev
+	./$(BUILDDIR)/daylight
+
+# Bundle a production binary into a MacOS app.
 .PHONY: app
 app: $(BUILDDIR)/Daylight.app
 
-$(BUILDDIR)/Daylight.app: $(BUILDDIR)/daylight assets/*
+$(BUILDDIR)/Daylight.app: build assets/*
 	# Copy assets and build binaries into app directory structure.
 	mkdir -p $(BUILDDIR)/Daylight.app/Contents/MacOS
 	cp ./assets/Info.plist $(BUILDDIR)/Daylight.app/Contents
@@ -21,6 +29,7 @@ $(BUILDDIR)/Daylight.app: $(BUILDDIR)/daylight assets/*
 	mkdir -p $(BUILDDIR)/Daylight.app/Contents/Resources
 	cp ./assets/icon.icns $(BUILDDIR)/Daylight.app/Contents/Resources
 
+# Zip a production MacOS app.
 .PHONY: zip
 zip: $(BUILDDIR)/Daylight.zip
 

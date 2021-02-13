@@ -26,9 +26,7 @@ const (
 )
 
 func main() {
-	log.Println("Starting Daytime")
 	runtime.LockOSThread()
-
 	app := cocoa.NSApp_WithDidLaunch(func(n objc.Object) {
 		// Init status bar icon.
 		obj := cocoa.NSStatusBar_System().StatusItemWithLength(cocoa.NSVariableStatusItemLength)
