@@ -5,7 +5,7 @@
 + Check a status bar countdown of how much daylight is left.
 + Create a calendar event for the last `n` minutes of daylight.
 
-Due credit: `daylight`'s built using [progrium/macdriver](https://github.com/progrium/macdriver)'s Go bindings for Cocoa APIs and data from [chubin/wttr.in](https://github.com/chubin/wttr.in).
+Due credit: `daylight` uses [progrium/macdriver](https://github.com/progrium/macdriver)'s Go bindings for Cocoa APIs and data from [chubin/wttr.in](https://github.com/chubin/wttr.in).
 
 ![Screenshot of Daylight, showing the time remaining before sunset and a submenu for creating calendar invites.](./assets/screenshot.png)
 
