@@ -37,7 +37,6 @@ func (d *SunData) Update(force bool) (data *SunData, err error) {
 		}
 		return newData, nil
 	}
-	log.Printf("Skipping refresh; data from %v", d.fetchTime)
 	return d, nil
 }
 
