@@ -32,29 +32,26 @@ func main() {
 			// fetchedData is cached sunrise/sunset data; it's expected to last
 			// for a day before it's automatically refetched.
 			var fetchedData *daylight.SunData
-			fetchAndRender := func(forceRefetch bool) {
-				if forceRefetch {
-					ui.SetStatusItemTitle(daylight.TitleLoading)
-				}
+			fetchAndRender := func() {
 				var err error
-				if fetchedData, err = fetchedData.Update(forceRefetch); err != nil {
+				if fetchedData, err = fetchedData.Update(); err != nil {
 					log.Printf("Error updating data: %v", err)
 				}
 				ui.Render(fetchedData)
 			}
 			// Initialize state.
-			fetchAndRender(true)
+			fetchAndRender()
 
 			// Event loop.
 			for {
 				select {
 				case <-time.After(1 * time.Minute):
-					fetchAndRender(false)
+					fetchAndRender()
+				case <-refreshClicked:
+					fetchAndRender()
 				case <-time.After(15 * time.Minute):
 					// Periodically lean up created event files.
 					eventTempFiles.CleanUp()
-				case <-refreshClicked:
-					fetchAndRender(true)
 				case minutes := <-newEventClicked:
 					openICSEvent(eventTempFiles, fetchedData.Sunset, minutes)
 				}

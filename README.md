@@ -5,7 +5,7 @@
 + Check a status bar countdown of how much daylight is left.
 + Create a calendar event for the last `n` minutes of daylight.
 
-Due credit: `daylight` uses [progrium/macdriver](https://github.com/progrium/macdriver)'s Go bindings for Cocoa APIs and data from [chubin/wttr.in](https://github.com/chubin/wttr.in).
+Due credit: `daylight` uses [progrium/macdriver](https://github.com/progrium/macdriver)'s Go bindings for Cocoa APIs.
 
 ![Screenshot of Daylight, showing the time remaining before sunset and a submenu for creating calendar invites.](./assets/screenshot.png)
 
@@ -17,11 +17,11 @@ Due credit: `daylight` uses [progrium/macdriver](https://github.com/progrium/mac
 
 ### Changing the location
 
-Because wttr.in's location inference is inconsistent, [data.go](./data.go) requests wttr.in data for a hardcoded city (San Francisco, CA). If you want to use the app at some other latitudde, you'll need to change `wttrURL` to reflect that!
+Daylight currently hardcodes coordinates for sunrise/sunset in San Francisco. If you'd like to use Daylight in some other city, change those hardcoded coordinates and rebuild the app:
 
 1. Clone or download this repository.
-2. Find the definition of `wttrURL` in [data.go](./data.go). Replace `San+Francisco` with your location. For example, if you're in Kansas City, you should have ```wttrURL = `https://wttr.in/Kansas+City?format={"sunrise":"%S","sunset":"%s"}` ```.
-3. Run `make install` to build the application bundle and move it into your Applications folder.
+2. Find the definitions of `cityLatitude` and `cityLongitude` in [data.go](./data.go). Update these to match the rough latitude and longitude of the city you want.<br>For example, if you're in Kansas City, you should have `cityLatitude = 39.0997` and `cityLongitude = -94.5786`.
+3. Run `make install` to build Daylight and move it into your Applications folder.
 
 ### Development
 

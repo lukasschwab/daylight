@@ -100,27 +100,22 @@ func (components *ui) Render(data *SunData) {
 		// Unrenderable state; don't change current
 		log.Println("Tried rendering nil data")
 	} else if now.Before(data.Sunrise) {
-		// Indicate waiting for sunrise.
-		components.SetStatusItemTitle(titleDark)
-		toSunrise := data.Sunrise.Sub(now).Round(time.Minute)
-		components.verboseItem.SetTitle(fmt.Sprintf("%v until sunrise", toSunrise.String()))
+		components.renderDark(now, data.Sunrise)
 	} else if now.After(data.Sunset) {
-		// Indicate no data for tomorrow.
-		components.SetStatusItemTitle(titleDark)
-		components.verboseItem.SetTitle("You snooze, you lose.")
+		components.renderDark(now, data.SunriseTomorrow)
 	} else {
 		// Indicate time to sunset.
 		toSunset := data.Sunset.Sub(now).Round(time.Minute)
 		toSunsetString := toString(toSunset)
-		components.SetStatusItemTitle(fmt.Sprintf(titleDaylightFormat, toSunsetString))
+		components.statusItem.Button().SetTitle(fmt.Sprintf(titleDaylightFormat, toSunsetString))
 		components.verboseItem.SetTitle(fmt.Sprintf("%v until sunset", toSunsetString))
 	}
 }
 
-// SetStatusItemTitle sets the title for the status bar item. This setter is
-// exported as an exception:
-func (components *ui) SetStatusItemTitle(title string) {
-	components.statusItem.Button().SetTitle(title)
+func (components *ui) renderDark(now, nextSunrise time.Time) {
+	components.statusItem.Button().SetTitle(titleDark)
+	toSunrise := nextSunrise.Sub(now).Round(time.Minute)
+	components.verboseItem.SetTitle(fmt.Sprintf("%v until sunrise", toSunrise.String()))
 }
 
 // toString formats a duration until sunset for display in the status bar and

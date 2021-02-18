@@ -3,6 +3,8 @@ github.com/google/uuid v1.2.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+
 github.com/gorilla/websocket v1.4.2/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/laurent22/ical-go v0.1.0 h1:4vZHBD3/+ne+IN+c3B+v6d9Ff8+70pzTjCWsjfDRvL0=
 github.com/laurent22/ical-go v0.1.0/go.mod h1:4LATl0uhhtytR6p9n1AlktDyIz4u2iUnWEdI3L/hXiw=
+github.com/lukasschwab/sunrisesunset v0.0.0-20210217173522-7786972cf0bb h1:LAoMeHrlFVqr4o3Yj1jGLH+ek2lce3oRLZBDePPE6js=
+github.com/lukasschwab/sunrisesunset v0.0.0-20210217173522-7786972cf0bb/go.mod h1:cDLBAo9/aXhl/j9git4SY78rmNTzQk10zFKukZxb4W0=
 github.com/manifold/qtalk v0.0.0-20201222233608-81c04ab41f37/go.mod h1:UX1KjRclAJyV+ydrpEO1CnF8x95Le/Adx8BMGPJaYqg=
 github.com/mitchellh/mapstructure v1.4.0/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
 github.com/progrium/macdriver v0.0.1 h1:IB6OIz+OotdKiCYRo9OLcrPSu1kP29RHmhEaol//sQk=
