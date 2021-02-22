@@ -21,7 +21,7 @@ func init() {
 	devWriter := io.MultiWriter(os.Stdout, logFile)
 	log.SetOutput(devWriter)
 
-	log.Println("[ STARTING DAYTIME ]")
+	log.Println("[ STARTING DAYLIGHT ]")
 
 	// Close the file when the program is terminated. This is kind of a hack;
 	// it's probably safe-ish to remove it if it's annoying.
@@ -31,7 +31,7 @@ func init() {
 		<-sig
 		// Note: this code does *not* run if the user quits daylight via the
 		// "Quit Daylight" menu item.
-		log.Printf("[ CLOSING DAYTIME ]")
+		log.Printf("[ CLOSING DAYLIGHT ]")
 		logFile.Close()
 		os.Exit(0)
 	}()

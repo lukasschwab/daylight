@@ -9,7 +9,7 @@ import (
 // TempFiles is a collection of temporary files that can be removed on some
 // sufficiently slow schedule.
 //
-// In daytime this is used to manage .ics files which need to be read by a
+// In daylight this is used to manage .ics files which need to be read by a
 // calendar application before they can be deleted. Temp file cleanup can race
 // with the calendar application, but since cleanups are infrequent, calendar
 // event creation is even less frequent, and calendar apps shouldn't take a
