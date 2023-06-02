@@ -12,11 +12,13 @@ import (
 	"github.com/lukasschwab/daylight"
 
 	"github.com/progrium/macdriver/cocoa"
+	"github.com/progrium/macdriver/core"
 	"github.com/progrium/macdriver/objc"
 )
 
 func main() {
 	runtime.LockOSThread()
+	cocoa.TerminateAfterWindowsClose = false
 	app := cocoa.NSApp_WithDidLaunch(func(n objc.Object) {
 		// Track temporary ICS files and clean them up on close.
 		eventTempFiles := &daylight.TempFiles{FileNameFormat: "daylight.*.ics"}
@@ -37,8 +39,11 @@ func main() {
 				if fetchedData, err = fetchedData.Update(); err != nil {
 					log.Printf("Error updating data: %v", err)
 				}
-				ui.Render(fetchedData)
+				core.Dispatch(func() {
+					ui.Render(fetchedData)
+				})
 			}
+
 			// Initialize state.
 			fetchAndRender()
 
@@ -46,15 +51,16 @@ func main() {
 			for {
 				select {
 				case <-time.After(1 * time.Minute):
-					fetchAndRender()
+					// fetchAndRender()
 				case <-refreshClicked:
-					fetchAndRender()
+					// fetchAndRender()
 				case <-time.After(15 * time.Minute):
-					// Periodically lean up created event files.
+					// Periodically clean up created event files.
 					eventTempFiles.CleanUp()
 				case minutes := <-newEventClicked:
 					openICSEvent(eventTempFiles, fetchedData.Sunset, minutes)
 				}
+				fetchAndRender()
 			}
 		}()
 	})
