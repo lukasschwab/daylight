@@ -145,6 +145,8 @@ github.com/progrium/macdriver v0.2.0 h1:+b90k/lyX0K0sV/aYs9EzWSgVhOFMGytKsnCsa1U
 github.com/progrium/macdriver v0.2.0/go.mod h1:QkZLlOeMkYF92euEWqUBpry7/tXrZuM575xZRwnuiig=
 github.com/progrium/macdriver v0.2.1-0.20230314201002-9bcf7627fef8 h1:vrW8Yaqgkjbk8gcpbaJosYc1ouPJjx4SnUgK9NFJGjM=
 github.com/progrium/macdriver v0.2.1-0.20230314201002-9bcf7627fef8/go.mod h1:QkZLlOeMkYF92euEWqUBpry7/tXrZuM575xZRwnuiig=
+github.com/progrium/macdriver v0.3.0 h1:JA5w02xkoi6GlhE27C4Knc8JUrAc+3TcTUjoG9tvkAs=
+github.com/progrium/macdriver v0.3.0/go.mod h1:QkZLlOeMkYF92euEWqUBpry7/tXrZuM575xZRwnuiig=
 github.com/progrium/macschema v0.1.0/go.mod h1:XzxlqYAo4vKozoZd837LBMjPcfJNlvwB5yBn5Nu+RDE=
 github.com/prometheus/client_golang v0.9.1/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=
 github.com/prometheus/client_golang v0.9.3/go.mod h1:/TN21ttK/J9q6uSwhBd54HahCDft0ttaMvbicHlPoso=
